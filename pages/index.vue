@@ -3,10 +3,11 @@
     <div class="row flex-column align-items-center py-5 mt-3 text-center">
       <div class="col-sm-6 py-5">
         <button class="bg-white btn speechButton" @click.prevent="startConversion">
-          <icon-mic v-if="!recording"/>
-          <icon-dots-animation v-else/>
+          <icon-mic v-if="!recording && !spinner"/>
+          <b-spinner v-if="spinner && !recording" style="width: 25px; height: 25px"></b-spinner>
+          <icon-dots-animation v-if="!spinner && recording"/>
         </button>
-        <p class="d-inline-block ml-3 speechText" v-if="runtimeTranscription_ == ''">Click the mic to start speaking</p>
+        <p class="d-inline-block ml-3 speechText" v-if="runtimeTranscription_ == '' && !recording">Click the mic to start speaking</p>
         <p class="d-inline-block ml-3 speechText" v-else>{{runtimeTranscription_}}</p>
         
 
@@ -48,6 +49,7 @@
        transcription_: [],
        recording: false,
        error: '',
+       spinner: false,
        supportedQueries: [
         "what's the weather like",
         "what is the weather like",
@@ -73,115 +75,119 @@
    },
    methods: {
     startConversion() {
-    // speechInput initialization
-    
-    window.SpeechRecognition =
-    window.SpeechRecognition || 
-    window.webkitSpeechRecognition
-    const recognition = new window.SpeechRecognition()
-    recognition.lang = this.lang_
-    recognition.interimResults = true
-
-    // record word from current speech
-    recognition.addEventListener("result", event => {
-      this.recording = true
-      document.querySelector('.speechButton').classList.add('recording')
-      var text = Array.from(event.results)
-        .map(result => result[0])
-        .map(result => result.transcript)
-        .join("")
-      this.runtimeTranscription_ = text
-    })
-    // end of transcription
-    recognition.addEventListener("end", () => {
-      this.transcription_.push(this.runtimeTranscription_)
       this.recording = false
+      this.spinner = true
+      // speechInput initialization
+      
+      window.SpeechRecognition =
+      window.SpeechRecognition || 
+      window.webkitSpeechRecognition
+      const recognition = new window.SpeechRecognition()
+      recognition.lang = this.lang_
+      recognition.interimResults = true
 
-      // I know this is a mess, but this is just for test purpose, lol
-      switch(this.runtimeTranscription_) {
-        case "what's the weather like":
-          this.geolocation()
-          break
-        case "weather today":
-          this.geolocation()
-          break
-        case "what is the weather like":
-          this.geolocation()
-          break
-        case "weather right now":
-          this.geolocation()
-          break
-        case "current weather":
-          this.geolocation()
-          break
-        case "how's the weather like":
-          this.geolocation()
-          break
-        case "how is the weather like":
-          this.geolocation()
-          break
-        case "how's the weather outside":
-          this.geolocation()
-          break
-        case "how's the weather":
-          this.geolocation()
-          break
-        case "how is the weather":
-          this.geolocation()
-          break
-        case "what's it like outside":
-          this.geolocation()
-          break
-        case "how's the weather like tomorrow":
-          this.nextDay()
-          break
-        case "how is the weather tomorrow":
-          this.nextDay()
-          break
-        case "tomorrow's weather"  :
-          this.nextDay()
-          break
-        case "weather tomorrow":
-          this.nextDay()
-          break
-        default:
-          this.error = 'Speech match not found.'
-      }
-      document.querySelector('.speechButton').blur()
-      document.querySelector('.speechButton').classList.remove('recording')
-      recognition.stop()
-    })
-     recognition.start()
-   },
-   async geolocation() {
-     this.error = ''
-     this.tomorrowTemp = {}
-     navigator.geolocation.getCurrentPosition((position) => {
-       this.lat = position.coords.latitude
-       this.lng = position.coords.longitude
-      this.$axios.get('/onecall?&exclude=hourly,minutely&units=metric&APPID=' + this.apiKey + '&lat=' + this.lat + '&lon=' + this.lng)
-        .then((response) => {
-          this.currentTemp = response.data
-        }).catch((err) => {
-          console.log(err)
-        })
+      // record word from current speech
+      recognition.addEventListener("result", event => {
+        this.recording = true
+        this.spinner = false
+        document.querySelector('.speechButton').classList.add('recording')
+        var text = Array.from(event.results)
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join("")
+        this.runtimeTranscription_ = text
       })
-   },
-   nextDay() {
-     this.error = ''
-     this.currentTemp = {}
-     navigator.geolocation.getCurrentPosition((position) => {
-       this.lat = position.coords.latitude
-       this.lng = position.coords.longitude
-      //  console.log(this.lat)
-      this.$axios.get('/onecall?&exclude=hourly,minutely&units=metric&APPID=' + this.apiKey + '&lat=' + this.lat + '&lon=' + this.lng)
-        .then((response) => {
-          this.tomorrowTemp = response.data
-        }).catch((err) => {
-          console.log(err)
-        })
+      // end of transcription
+      recognition.addEventListener("end", () => {
+        this.transcription_.push(this.runtimeTranscription_)
+        this.recording = false
+        this.spinner = false
+
+        // I know this is a mess, but this is just for test purpose, lol
+        switch(this.runtimeTranscription_) {
+          case "what's the weather like":
+            this.geolocation()
+            break
+          case "weather today":
+            this.geolocation()
+            break
+          case "what is the weather like":
+            this.geolocation()
+            break
+          case "weather right now":
+            this.geolocation()
+            break
+          case "current weather":
+            this.geolocation()
+            break
+          case "how's the weather like":
+            this.geolocation()
+            break
+          case "how is the weather like":
+            this.geolocation()
+            break
+          case "how's the weather outside":
+            this.geolocation()
+            break
+          case "how's the weather":
+            this.geolocation()
+            break
+          case "how is the weather":
+            this.geolocation()
+            break
+          case "what's it like outside":
+            this.geolocation()
+            break
+          case "how's the weather like tomorrow":
+            this.nextDay()
+            break
+          case "how is the weather tomorrow":
+            this.nextDay()
+            break
+          case "tomorrow's weather"  :
+            this.nextDay()
+            break
+          case "weather tomorrow":
+            this.nextDay()
+            break
+          default:
+            this.error = 'Speech match not found.'
+        }
+        document.querySelector('.speechButton').blur()
+        document.querySelector('.speechButton').classList.remove('recording')
+        recognition.stop()
       })
-   }
+      recognition.start()
+    },
+    async geolocation() {
+      this.error = ''
+      this.tomorrowTemp = {}
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.lat = position.coords.latitude
+        this.lng = position.coords.longitude
+        this.$axios.get('/onecall?&exclude=hourly,minutely&units=metric&APPID=' + this.apiKey + '&lat=' + this.lat + '&lon=' + this.lng)
+          .then((response) => {
+            this.currentTemp = response.data
+          }).catch((err) => {
+            console.log(err)
+          })
+        })
+    },
+    nextDay() {
+      this.error = ''
+      this.currentTemp = {}
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.lat = position.coords.latitude
+        this.lng = position.coords.longitude
+        //  console.log(this.lat)
+        this.$axios.get('/onecall?&exclude=hourly,minutely&units=metric&APPID=' + this.apiKey + '&lat=' + this.lat + '&lon=' + this.lng)
+          .then((response) => {
+            this.tomorrowTemp = response.data
+          }).catch((err) => {
+            console.log(err)
+          })
+        })
+    }
 
    }
   }
