@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@400;500;600;700&display=swap');
-
 :root {
   --color: #191d20;
   --button-color: #90f2fd;
@@ -25,7 +23,7 @@ body {
   color: var(--speech-text);
   text-align: center;
 }
-.speechText:first-letter {
+.speechText:first-letter, ul > li::first-letter {
   text-transform: capitalize;
 }
 .speechButton {
@@ -110,12 +108,16 @@ body {
 /* card */
 .card {
   background-color: var(--component-bg);
-  max-width: 450px;
 }
 .card-text {
   color: var(--card-txt);
 }
+/* list */
+ul {
+  list-style-type: none;
+}
 /* footer */
 .footer {
   padding: 2rem 0;
+  background: var(--bg)
 }

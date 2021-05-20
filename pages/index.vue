@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="row flex-column align-items-center py-5 mt-3">
+    <div class="row flex-column align-items-center py-5 mt-3 text-center">
       <div class="col-sm-6 py-5">
         <button class="bg-white btn speechButton" @click.prevent="startConversion">
           <icon-mic v-if="!recording"/>
@@ -8,24 +8,28 @@
         </button>
         <p class="d-inline-block ml-3 speechText" v-if="runtimeTranscription_ == ''">Click the mic to start speaking</p>
         <p class="d-inline-block ml-3 speechText" v-else>{{runtimeTranscription_}}</p>
+        
+
+        <weather-card-current :currentTemp="currentTemp" v-if="Object.keys(currentTemp).length > 0"/>
+
+        <weather-card-tomorrow :tomorrowTemp="tomorrowTemp" v-if="Object.keys(tomorrowTemp).length > 0"/>
+        
         <div v-if="error != ''" class="mt-3">
           <b-alert show variant="danger" class="mb-0">
             {{error}}
           </b-alert>
           <br>
-          <p>
-            Supported queries are: 
-          </p>
-          <ul class="ml-1">
-            <li v-for="(query, index) in supportedQueries" :key="index">
-              {{query}}
-            </li>
-          </ul>
+          <div class="text-left">
+            <p>
+              Supported queries are: 
+            </p>
+            <ul class="pl-3">
+              <li v-for="(query, index) in supportedQueries" :key="index">
+                {{query}}
+              </li>
+            </ul>
+          </div>
         </div>
-
-        <weather-card-current :currentTemp="currentTemp" v-if="Object.keys(currentTemp).length > 0"/>
-
-        <weather-card-tomorrow :tomorrowTemp="tomorrowTemp" v-if="Object.keys(tomorrowTemp).length > 0"/>
 
       </div>
     </div>     
