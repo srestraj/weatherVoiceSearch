@@ -5,7 +5,56 @@ export default {
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
+      {
+        hid: 'description',
+        name: 'description',
+        content: 'Weather App with Voice Search',
+      },
+      {
+        hid: 'og:title',
+        name: 'og:title',
+        property: 'og:title',
+        content: 'Weather App with Voice Search',
+      },
+      {
+        hid: 'og:url',
+        name: 'og:url',
+        property: 'og:url',
+        content: 'https://weather-voice-search.vercel.app/',
+      },
+      {
+        hid: 'og:type',
+        name: 'og:type',
+        property: 'og:type',
+        content: 'Website',
+      },
+      {
+        hid: 'og:image',
+        name: 'og:image',
+        property: 'og:image',
+        content: 'https://weather-voice-search.vercel.app/og-image.png',
+      },
+      {
+        hid: 'og:site_name',
+        name: 'og:site_name',
+        property: 'og:site_name',
+        content: 'Weather App with Voice Search',
+      },
+      {
+        hid: 'twitter:card',
+        name: 'twitter:card',
+        content: 'summary',
+      },
+      {
+        hid: 'twitter:title',
+        name: 'twitter:title',
+        content: 'Weather App with Voice Search',
+      },
+      {
+        hid: 'twitter:image',
+        name: 'twitter:image',
+        content: 'https://weather-voice-search.vercel.app/og-image.png',
+      },
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
