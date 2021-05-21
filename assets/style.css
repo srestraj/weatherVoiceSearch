@@ -51,7 +51,7 @@ body {
 }
 
 .preloader-dots {
-  height: 50px;
+  height: 25px;
   width: 80px;
 }
 
@@ -92,7 +92,7 @@ body {
   }
 
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-10px);
     opacity: 0.8;
   }
 
