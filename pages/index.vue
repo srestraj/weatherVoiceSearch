@@ -40,7 +40,6 @@
 
 
  <script>
-
   export default {
    data() {
      return {
@@ -50,6 +49,8 @@
        recording: false,
        error: '',
        spinner: false,
+       speechSynth: [],
+       voices: [],
        supportedQueries: [
         "what's the weather like",
         "what is the weather like",
@@ -70,8 +71,15 @@
        lat: '',
        lng: '',
        currentTemp: {},
-       tomorrowTemp: {}
+       tomorrowTemp: {},
      }
+   },
+   mounted() {
+     var synth = window.speechSynthesis
+    //  store speechSynthesis inside app to use it later
+     this.speechSynth = synth
+    //  store voices
+     this.voices = synth.getVoices()
    },
    methods: {
     startConversion() {
@@ -168,6 +176,11 @@
         this.$axios.get('/onecall?&exclude=hourly,minutely&units=metric&APPID=' + this.apiKey + '&lat=' + this.lat + '&lon=' + this.lng)
           .then((response) => {
             this.currentTemp = response.data
+            // initialize speech output
+            var utterThis = new SpeechSynthesisUtterance("It's" + this.currentTemp.current.temp + '°C now.')
+            // set language as English US
+            utterThis.voice = this.voices[1]
+            this.speechSynth.speak(utterThis)
           }).catch((err) => {
             console.log(err)
           })
@@ -183,6 +196,11 @@
         this.$axios.get('/onecall?&exclude=hourly,minutely&units=metric&APPID=' + this.apiKey + '&lat=' + this.lat + '&lon=' + this.lng)
           .then((response) => {
             this.tomorrowTemp = response.data
+             // initialize speech output
+            var utterThis = new SpeechSynthesisUtterance("It can reach up to" + this.tomorrowTemp.daily[1].temp.max + '°C tomorrow.')
+            // set language as English US
+            utterThis.voice = this.voices[1]
+            this.speechSynth.speak(utterThis)
           }).catch((err) => {
             console.log(err)
           })
