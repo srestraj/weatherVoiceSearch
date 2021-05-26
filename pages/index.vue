@@ -160,6 +160,10 @@
             break
           default:
             this.error = 'Speech match not found.'
+            var utterThis = new SpeechSynthesisUtterance("Speech match not found. Following are the supported queries.")
+            // set language as English US
+            utterThis.voice = this.voices[1]
+            this.speechSynth.speak(utterThis)
         }
         document.querySelector('.speechButton').blur()
         document.querySelector('.speechButton').classList.remove('recording')
