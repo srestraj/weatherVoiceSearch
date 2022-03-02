@@ -2,18 +2,17 @@
   <div class="container">
     <div class="row flex-column align-items-center py-5 mt-3 text-center">
       <div class="col-sm-6 py-5">
-        <button class="bg-white btn speechButton" @click.prevent="startConversion">
-          <icon-mic v-if="!recording && !spinner"/>
-          <b-spinner v-if="spinner && !recording" style="width: 25px; height: 25px"></b-spinner>
-          <icon-dots-animation v-if="!spinner && recording"/>
+        <button class="btn speechButton" @click.prevent="startConversion">
+          <icon-mic v-if="!recording"/>
+          <icon-dots-animation v-if="recording"/>
         </button>
-        <p class="d-inline-block ml-3 speechText" v-if="runtimeTranscription_ == '' && !recording">Click the mic to start speaking</p>
-        <p class="d-inline-block ml-3 speechText" v-else>{{runtimeTranscription_}}</p>
+        <p class="d-inline-block mt-3 speechText" v-if="runtimeTranscription_ == '' && !recording">Tap the mic to start speaking</p>
+        <p class="d-inline-block mt-3 speechText" v-else>{{ runtimeTranscription_ }}</p>
         
 
-        <weather-card-current :currentTemp="currentTemp" v-if="Object.keys(currentTemp).length > 0"/>
+        <weather-card-current :currentTemp="temperature" v-if="Object.keys(temperature).length > 0"/>
 
-        <weather-card-tomorrow :tomorrowTemp="tomorrowTemp" v-if="Object.keys(tomorrowTemp).length > 0"/>
+        <weather-card-tomorrow :tomorrowTemp="tomorrowTemp" v-if="Object.keys(tomorrowTemp).length > 0" />
         
         <div v-if="error != ''" class="mt-3">
           <b-alert show variant="danger" class="mb-0">
@@ -24,11 +23,12 @@
             <p>
               Supported queries are: 
             </p>
-            <ul class="pl-3">
-              <li v-for="(query, index) in supportedQueries" :key="index">
-                {{query}}
-              </li>
-            </ul>
+
+            <div class="py-2 pill-container">
+              <b-badge class="mr-2" variant="light" pill v-for="(query, index) in supportedQueries" :key="index" @click="detectText(query)">
+                <h6 class="font-weight-light pill-text">{{ query }}</h6>
+              </b-badge>
+            </div>
           </div>
         </div>
 
@@ -43,12 +43,12 @@
   export default {
    data() {
      return {
-       apiKey: '691a30a883842fd2dba81c53ee9bab05',
+       apiKey: process.env.API_KEY,
+       weatherAPI: process.env.WEATHER_API,
        runtimeTranscription_: "",
        transcription_: [],
        recording: false,
        error: '',
-       spinner: false,
        speechSynth: [],
        voices: [],
        supportedQueries: [
@@ -70,8 +70,14 @@
        lang_: "en-EN",
        lat: '',
        lng: '',
-       currentTemp: {},
-       tomorrowTemp: {},
+     }
+   },
+   computed: {
+     temperature() {
+       return this.$store.state.weather.temperature
+     },
+     tomorrowTemp() {
+       return this.$store.state.weather.tomorrowTemp
      }
    },
    mounted() {
@@ -83,8 +89,7 @@
    },
    methods: {
     startConversion() {
-      this.recording = false
-      this.spinner = true
+      this.recording = true
       // speechInput initialization
       
       window.SpeechRecognition =
@@ -97,7 +102,6 @@
       // record word from current speech
       recognition.addEventListener("result", event => {
         this.recording = true
-        this.spinner = false
         document.querySelector('.speechButton').classList.add('recording')
         var text = Array.from(event.results)
           .map(result => result[0])
@@ -109,7 +113,6 @@
       recognition.addEventListener("end", () => {
         this.transcription_.push(this.runtimeTranscription_)
         this.recording = false
-        this.spinner = false
 
         // I know this is a mess, but this is just for test purpose, lol
         switch(this.runtimeTranscription_) {
@@ -162,7 +165,7 @@
             this.error = 'Speech match not found.'
             var utterThis = new SpeechSynthesisUtterance("Speech match not found. Following are the supported queries.")
             // set language as English US
-            utterThis.voice = this.voices[1]
+            utterThis.voice = this.voices[2]
             this.speechSynth.speak(utterThis)
         }
         document.querySelector('.speechButton').blur()
@@ -171,44 +174,87 @@
       })
       recognition.start()
     },
+
+    // current weather
     async geolocation() {
       this.error = ''
-      this.tomorrowTemp = {}
+      this.$store.commit('weather/storeTomorrowTemp', {})
       navigator.geolocation.getCurrentPosition((position) => {
         this.lat = position.coords.latitude
         this.lng = position.coords.longitude
-        this.$axios.get('/onecall?&exclude=hourly,minutely&units=metric&APPID=' + this.apiKey + '&lat=' + this.lat + '&lon=' + this.lng)
-          .then((response) => {
-            this.currentTemp = response.data
-            // initialize speech output
-            var utterThis = new SpeechSynthesisUtterance("It's" + this.currentTemp.current.temp + '°C now.')
-            // set language as English US
-            utterThis.voice = this.voices[1]
-            this.speechSynth.speak(utterThis)
-          }).catch((err) => {
-            console.log(err)
-          })
-        })
+        this.$store.dispatch('weather/getWeather', { lat: this.lat, lng: this.lng, weatherAPI: this.weatherAPI, apiKey: this.apiKey, voices: this.voices, speechSynth: this.speechSynth })
+      })
     },
+
+    // get tomorrow's weather
     nextDay() {
       this.error = ''
-      this.currentTemp = {}
+      this.$store.commit('weather/storeTemp', {})
       navigator.geolocation.getCurrentPosition((position) => {
         this.lat = position.coords.latitude
         this.lng = position.coords.longitude
-        //  console.log(this.lat)
-        this.$axios.get('/onecall?&exclude=hourly,minutely&units=metric&APPID=' + this.apiKey + '&lat=' + this.lat + '&lon=' + this.lng)
-          .then((response) => {
-            this.tomorrowTemp = response.data
-             // initialize speech output
-            var utterThis = new SpeechSynthesisUtterance("It can reach up to" + this.tomorrowTemp.daily[1].temp.max + '°C tomorrow.')
+        this.$store.dispatch('weather/getTomorrowWeather', { lat: this.lat, lng: this.lng, weatherAPI: this.weatherAPI, apiKey: this.apiKey, voices: this.voices, speechSynth: this.speechSynth })
+      })
+    },
+
+    // detect text on pill click
+    detectText(query) {
+      this.recording = true
+      this.runtimeTranscription_ = query
+      switch(query) {
+          case "what's the weather like":
+            this.geolocation()
+            break
+          case "weather today":
+            this.geolocation()
+            break
+          case "what is the weather like":
+            this.geolocation()
+            break
+          case "weather right now":
+            this.geolocation()
+            break
+          case "current weather":
+            this.geolocation()
+            break
+          case "how's the weather like":
+            this.geolocation()
+            break
+          case "how is the weather like":
+            this.geolocation()
+            break
+          case "how's the weather outside":
+            this.geolocation()
+            break
+          case "how's the weather":
+            this.geolocation()
+            break
+          case "how is the weather":
+            this.geolocation()
+            break
+          case "what's it like outside":
+            this.geolocation()
+            break
+          case "how's the weather like tomorrow":
+            this.nextDay()
+            break
+          case "how is the weather tomorrow":
+            this.nextDay()
+            break
+          case "tomorrow's weather"  :
+            this.nextDay()
+            break
+          case "weather tomorrow":
+            this.nextDay()
+            break
+          default:
+            this.error = 'Speech match not found.'
+            var utterThis = new SpeechSynthesisUtterance("Speech match not found. Following are the supported queries.")
             // set language as English US
-            utterThis.voice = this.voices[1]
+            utterThis.voice = this.voices[2]
             this.speechSynth.speak(utterThis)
-          }).catch((err) => {
-            console.log(err)
-          })
-        })
+        }
+        this.recording = false
     }
 
    }

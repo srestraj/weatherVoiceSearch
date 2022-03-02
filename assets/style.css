@@ -1,8 +1,8 @@
 :root {
-  --color: #191d20;
-  --button-color: #90f2fd;
+  --color: #ccc;
+  --button-color: #ddd;
   --shadow: #00000026;
-  --bg: #5b82a3;
+  --bg: #14121d;
   --component-bg: #1a202c;
   --card-txt: #f9f9f9;
   --speech-text: #f8f8f8;
@@ -22,18 +22,21 @@ body {
 .speechText {
   color: var(--speech-text);
   text-align: center;
+  font-size: 1.2rem;
 }
 .speechText:first-letter, ul > li::first-letter {
   text-transform: capitalize;
 }
 .speechButton {
   background: var(--button-color);
-}
-.speechButton {
   box-shadow: 0 0.5rem 1rem var(--shadow);
   border-radius: 50px;
-  height: 50px;
-  width: 50px;
+  height: 80px;
+  width: 80px;
+  display: block;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .speechButton.recording {
   width: 70px;
@@ -52,7 +55,7 @@ body {
 
 .preloader-dots {
   height: 25px;
-  width: 80px;
+  width: 100%;
 }
 
 .preloader-dots .dot {
@@ -63,6 +66,7 @@ body {
   opacity: 0.3;
   border-radius: 50%;
   animation: moveit 1.8s infinite;
+  margin: 0 2px;
 }
 
 .dot:nth-child(2) {
@@ -107,7 +111,12 @@ body {
 }
 /* card */
 .card {
-  background-color: var(--component-bg);
+  background: rgba(207, 207, 207, 0.33);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(7.6px);
+  -webkit-backdrop-filter: blur(7.6px);
+  border: 1px solid rgba(207, 207, 207, 0.15);
 }
 .card-text {
   color: var(--card-txt);
@@ -120,4 +129,27 @@ ul {
 .footer {
   padding: 2rem 0;
   background: var(--bg)
+}
+
+/* pill text */
+.pill-container {
+  display: flex;
+  overflow-x: auto;
+}
+.pill-text {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px;
+  color: var(--component-bg);
+}
+
+.badge-pill {
+  cursor: pointer;
+}
+.badge-pill:hover {
+  background: var(--component-bg);
+}
+.badge-pill:hover .pill-text {
+  color: var(--card-txt);
 }

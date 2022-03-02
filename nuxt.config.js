@@ -91,9 +91,9 @@ export default {
     '@nuxtjs/pwa',
   ],
 
-  // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {
-    baseURL: 'https://api.openweathermap.org/data/2.5',
+  env: {
+    API_KEY: process.env.API_KEY,
+    WEATHER_API: process.env.WEATHER_API
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
