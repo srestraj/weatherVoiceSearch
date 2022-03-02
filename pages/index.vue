@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="row flex-column align-items-center py-5 mt-3 text-center">
+    <div class="row flex-column align-items-center py-5 text-center">
       <div class="col-sm-6 py-5">
         <button class="btn speechButton" @click.prevent="startConversion">
           <icon-mic v-if="!recording"/>

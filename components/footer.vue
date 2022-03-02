@@ -2,7 +2,7 @@
   <div class="fixed-bottom footer">
     <div class="row text-center">
       <div class="col-12">
-        Developed by <a href="https://rajkshrestha1.com.np" style="color: var(--footer-txt)" target="_blank">Raj Kumar Shrestha</a>
+        Developed by <a href="https://github.com/srestraj" style="color: var(--footer-txt)" target="_blank">Raj Kumar Shrestha</a>
       </div>
     </div>
   </div>
